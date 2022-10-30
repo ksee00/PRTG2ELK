@@ -3,7 +3,8 @@ from pathlib import Path  # core python module
 import pandas as pd  # pip install pandas openpyxl
 import PySimpleGUI as sg  # pip install pysimplegui
 import re
-
+import csv
+import os
 
 def is_valid_path(filepath):
     if filepath and Path(filepath).exists():
@@ -56,6 +57,90 @@ def add_str_to_lines(f_name, output_folder, str_to_add):
     with open(outputfile, "w") as f:
         for line in lines:
             f.write(line)
+
+
+    cleansing_data(outputfile, output_folder)
+    # sg.popup_no_titlebar("Done! :)")
+
+
+def cleansing_data(f_name, output_folder):
+    processing_file  = f_name
+    final_processed_file = f_name
+
+    filename = Path(f_name).stem
+    interim_processed_file  = Path(output_folder) / f"{filename}_temp.csv"
+
+    # Obtains the total of lines in the processing file.
+    total_lines_in_processing_file = totalLinesProcessingFile(f_name)
+    print(f'Total Lines in Processing File {total_lines_in_processing_file} lines.')
+
+        # Obtains the total of lines in the processing file.
+    total_columns_in_processing_row = totalColumnsProcessingRow(f_name)
+    print(f'Total Columns in Processing Row {total_columns_in_processing_row} columns.')
+
+    with open(interim_processed_file, mode='w') as processed_file_handler: 
+        csv_writer = csv.writer(processed_file_handler, delimiter=',', lineterminator='\r', quoting=csv.QUOTE_MINIMAL, doublequote=False )
+        with open(processing_file) as processing_file_handler:
+            csv_reader = csv.reader(processing_file_handler, delimiter=',')
+            line_count = 0
+            for row in csv_reader:
+                if line_count == 0:
+                    #print(f'Column names are {", ".join(row)}')
+                    line_count += 1
+                else:                                   
+                    # 1. Ensure number of columns is as per heading.
+                    number_of_readin_cols = len(row)
+
+                    if (number_of_readin_cols != total_columns_in_processing_row):
+                        continue
+
+                    # 2. If value in first column consists of "values", skip 
+                    if(in_(row[0], "values")):
+                        continue
+
+                    if(in_(row[0], "Date")):
+                        print("Found Date")
+                        continue
+
+
+                    csv_writer.writerow(row)
+                    line_count += 1
+            print(f'Processed {line_count} / {total_lines_in_processing_file} lines.')
+        processing_file_handler.close()
+    processed_file_handler.close()
+
+
+    with open(interim_processed_file, 'r') as f, open(final_processed_file, 'w') as fo:
+        for line in f:
+            fo.write(line.replace('"', '').replace("'", ""))
+
+    f.close()
+    fo.close()
+
+    if os.path.isfile(interim_processed_file):
+        os.remove(interim_processed_file)
+
+# 
+# Desc: To obtain the total of lines in the file.
+# 
+def totalLinesProcessingFile(_processing_file):
+    _input_file = open(_processing_file,"r+")
+    _reader_file = csv.reader(_input_file)
+    _value = len(list(_reader_file))
+    return _value
+# 
+# Desc: To obtain the total of columns in the row.
+# 
+def totalColumnsProcessingRow(_processing_file):
+    with open(_processing_file, 'r') as csv:
+        _first_line = csv.readline()
+        _your_data = csv.readlines()
+
+    _number_of_col = _first_line.count(',') + 1 
+    return _number_of_col
+
+def in_(s, other):
+    return other in s
 
 
 def settings_window(settings):
@@ -129,6 +214,7 @@ def main_window():
                 
                 sg.popup(window_title, "Completed", grab_anywhere=True)
                 window.reappear()
+
 
 
     window.close()
