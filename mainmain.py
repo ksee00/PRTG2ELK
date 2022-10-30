@@ -87,8 +87,7 @@ def settings_window(settings):
 
 def main_window():
     # ------ Menu Definition ------ #
-    menu_def = [["Toolbar", ["Command 1", "Command 2", "---", "Command 3", "Command 4"]],
-                ["Help", ["Settings", "About", "Exit"]]]
+    menu_def = [["Help", ["Settings", "About", "Exit"]]]
 
 
     # ------ GUI Definition ------ #
@@ -113,9 +112,6 @@ def main_window():
             window.reappear()
         if event in ("Command 1", "Command 2", "Command 3", "Command 4"):
             sg.popup_error("Not yet implemented")
-        if event == "Display Excel File":
-            if is_valid_path(values["-IN-"]):
-                display_excel_file(values["-IN-"], settings["EXCEL"]["sheet_name"])
         if event == "Settings":
             settings_window(settings)
         if event == "Data cleansing":
