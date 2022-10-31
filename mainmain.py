@@ -172,7 +172,7 @@ def settings_window(settings):
 
 def main_window():
     # ------ Menu Definition ------ #
-    menu_def = [["Help", ["Settings", "About", "Exit"]]]
+    menu_def = [["Help", ["About", "Exit"]]]
 
 
     # ------ GUI Definition ------ #
@@ -184,7 +184,7 @@ def main_window():
                     sg.T("* Must be prefix with ID. E.g. ID1234", font=('Lucida', 8), text_color='Gray')],
               [sg.Exit(s=16, button_color="tomato"),sg.B("Data cleansing", s=16)],]
 
-    window_title = settings["GUI"]["title"]
+    window_title = "Data Cleansing"
     window = sg.Window(window_title, layout, use_custom_titlebar=True)
 
     while True:
@@ -195,10 +195,6 @@ def main_window():
             window.disappear()
             sg.popup(window_title, "Version 1.0", "Data Cleansing", grab_anywhere=True)
             window.reappear()
-        if event in ("Command 1", "Command 2", "Command 3", "Command 4"):
-            sg.popup_error("Not yet implemented")
-        if event == "Settings":
-            settings_window(settings)
         if event == "Data cleansing":
             if(is_valid_device_id(values["-DEVICE_ID-"])):
                 pass
@@ -216,19 +212,13 @@ def main_window():
                 window.reappear()
 
 
-
     window.close()
 
 
 if __name__ == "__main__":
-    SETTINGS_PATH = Path.cwd()
-    # create the settings object and use ini format
-    settings = sg.UserSettings(
-        path=SETTINGS_PATH, filename="conf\\config.ini", use_config_file=True, convert_bools_and_none=True
-    )
-    theme = settings["GUI"]["theme"]
-    font_family = settings["GUI"]["font_family"]
-    font_size = int(settings["GUI"]["font_size"])
+    theme = "Reddit"
+    font_family = "Arial"
+    font_size = 12
     sg.theme(theme)
     sg.set_options(font=(font_family, font_size))
     main_window()
